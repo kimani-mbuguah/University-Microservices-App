@@ -1,6 +1,7 @@
 package com.iguanya.service;
 
 import com.iguanya.entity.Student;
+import com.iguanya.feignclients.AddressFeignClient;
 import com.iguanya.repository.StudentRepository;
 import com.iguanya.request.CreateStudentRequest;
 import com.iguanya.response.AddressResponse;
@@ -23,6 +24,9 @@ public class StudentService {
 	@Autowired
 	WebClient webClient;
 
+	@Autowired
+	AddressFeignClient addressFeignClient;
+
 	public StudentResponse createStudent(CreateStudentRequest createStudentRequest) {
 
 		Student student = new Student();
@@ -33,7 +37,13 @@ public class StudentService {
 		student = studentRepository.save(student);
 
 		StudentResponse studentResponse = new StudentResponse(student);
-		studentResponse.setAddressResponse(getAddressById(student.getAddressId()));
+
+		//studentResponse.setAddressResponse(getAddressById(student.getAddressId()));
+
+		studentResponse.setAddressResponse(addressFeignClient.getById(student.getAddressId()));
+
+
+
 		return studentResponse;
 	}
 	
@@ -41,7 +51,10 @@ public class StudentService {
 		logger.info("Inside getById " + id);
 		Student student = studentRepository.findById(id).get();
 		StudentResponse studentResponse = new StudentResponse(student);
-		studentResponse.setAddressResponse(getAddressById(student.getAddressId()));
+		//studentResponse.setAddressResponse(getAddressById(student.getAddressId()));
+
+		studentResponse.setAddressResponse(addressFeignClient.getById(student.getAddressId()));
+
 		return studentResponse;
 	}
 
